@@ -6,8 +6,6 @@
 - In your terminal type npm i or yarn i
 - Run the server with the command npm run dev or yarn dev
 
----
-
 ## Branch Breakdown
 
 - Master: Intial Commit, then final app
