@@ -1,8 +1,13 @@
-const http = require("http");
-const server = require("./controller/index");
+const express = require("express");
 
+const apiRouter = require("./routes/index");
+
+const app = express();
 const PORT = 3001;
 
-server.listen(PORT, () => {
+app.use(express.json());
+app.use("/api", apiRouter);
+
+app.listen(PORT, () => {
   console.log(`Server listening on port :${PORT} 🚀`);
 });
