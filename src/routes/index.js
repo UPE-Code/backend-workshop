@@ -101,6 +101,7 @@ const updateNotes = (req, res) => {
       let body = JSON.parse(data);
       note = { ...note, ...body };
       notes.push(note);
+      notes = notes.sort((a, b) => (a.id < b.id ? -1 : 0));
       saveNotes(notes, file);
 
       res.statusCode = 200; // Everything is good, so set response status to ok
@@ -116,4 +117,37 @@ const updateNotes = (req, res) => {
   }
 };
 
-module.exports = { addNote, readNote, readNotes, updateNotes }; // Export all api logic
+/* 
+  Filter array to remove note passed
+  Return deleted note to requester
+  Save notes
+  Return error if no note has been removed
+*/
+
+const deleteNote = (req, res) => {
+  let notes = loadNotes(file); // Load the array of notes
+
+  const { pathname, query } = url.parse(req.url);
+  let { id } = qs.parse(query);
+
+  id = Number(id);
+
+  foundNote = notes.find((note) => note.id === id);
+  filteredNotes = notes.filter((note) => note.id !== id);
+
+  if (notes.length > filteredNotes.length) {
+    saveNotes(filteredNotes, file);
+
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify(foundNote));
+  } else {
+    const message = { error: "No note removed" };
+
+    res.statusCode = 400; // There is no such note set response status to Bad Request
+    res.setHeader("Content-Type", "application/json"); // Tell the requester, that they are going to recieve JSON
+    res.end(JSON.stringify(message));
+  }
+};
+
+module.exports = { addNote, readNote, readNotes, updateNotes, deleteNote }; // Export all api logic

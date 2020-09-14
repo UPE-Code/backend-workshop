@@ -9,13 +9,17 @@ const apiRouter = require("../routes/index");
 module.exports = http.createServer((req, res) => {
   const { pathname, query } = url.parse(req.url);
 
-  if (pathname === "/api" && req.method === "POST") {
-    apiRouter.addNote(req, res);
-  } else if (pathname === "/api" && query && req.method === "GET") {
-    apiRouter.readNote(req, res);
-  } else if (pathname === "/api" && req.method === "GET") {
-    apiRouter.readNotes(req, res);
-  } else if (pathname === "/api" && query && req.method === "PUT") {
-    apiRouter.updateNotes(req, res);
+  if (pathname === "/api") {
+    if (req.method === "POST") {
+      apiRouter.addNote(req, res);
+    } else if (query && req.method === "GET") {
+      apiRouter.readNote(req, res);
+    } else if (req.method === "GET") {
+      apiRouter.readNotes(req, res);
+    } else if (query && req.method === "PUT") {
+      apiRouter.updateNotes(req, res);
+    } else if (query && req.method === "DELETE") {
+      apiRouter.deleteNote(req, res);
+    }
   }
 });
