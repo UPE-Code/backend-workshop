@@ -1,8 +1,14 @@
-const services = require("../services/index");
+const path = require("path");
+const url = require("url");
+const qs = require("querystring");
+
+const { loadNotes, saveNotes } = require("../services/index");
+
+const file = path.resolve(__dirname, "../db/notes.json");
 
 const addNote = (req, res) => {
-  const notes = services.loadNotes("../db/notes.json"); // Load the array of notes
-
+  const notes = loadNotes(file); // Load the array of notes
+  const id = notes.length;
   let data = [];
 
   /*
@@ -17,14 +23,57 @@ const addNote = (req, res) => {
   */
   req.on("end", () => {
     let body = JSON.parse(data); // Parses the data stream from a Buffer to JSON
-
-    notes.push(body); // Pushes the JSON object to the notes array
-    services.saveNotes(notes, "../db/notes.json"); // Rewrites the notes file to reflect the new notes array
+    let note = { id, ...body };
+    notes.push(note); // Pushes the JSON object to the notes array
+    saveNotes(notes, file); // Rewrites the notes file to reflect the new notes array
 
     res.statusCode = 200; // Everything is good, so set response status to ok
     res.setHeader("Content-Type", "application/json"); // Tell the requester, you are going to recieve JSON
-    res.end(JSON.stringify(body)); // Send the note back to the requester
+    res.end(JSON.stringify(note)); // Send the note back to the requester
   });
 };
 
-module.exports = { addNote }; // Export all api logic
+/* 
+  Need to get a note by title
+  Return that note
+*/
+const readNote = (req, res) => {
+  // Load the array of Notes
+  const notes = services.loadNotes(file);
+
+  // Destructure the pathname, and the querystring from the url
+  const { pathname, query } = url.parse(req.url);
+
+  // Destructure the id from the querystring
+  const { id } = qs.parse(query);
+
+  const note = notes.find((note) => Number(id) === note.id); // Compare the id of each note to the id. If there is a match, return that note, if not return undefined
+
+  if (note !== undefined) {
+    res.statusCode = 200; // Note has been found, so set response status to ok
+    res.setHeader("Content-Type", "application/json"); // Tell the requester, that they are going to recieve JSON
+    res.end(JSON.stringify(note)); // Return the note to the requester
+  } else {
+    message = { error: "Note not found" }; // Create an error object
+    res.statusCode = 400; // Note has not been found so set response status to Bad Request
+    res.setHeader("Content-Type", "application/json"); // Tell the requester, that they are going to recieve JSON
+    res.end(JSON.stringify(message)); // Return the error to the requester
+  }
+};
+
+const readNotes = (req, res) => {
+  const notes = loadNotes(file);
+
+  if (notes.length === 0) {
+    message = { error: "No notes found" };
+    res.statusCode = 400; // There are no so set response status to Bad Request
+    res.setHeader("Content-Type", "application/json"); // Tell the requester, that they are going to recieve JSON
+    res.end(JSON.stringify(message));
+  } else {
+    res.statusCode = 200; // Notes have been found, so set response status to ok
+    res.setHeader("Content-Type", "application/json"); // Tell the requester, that they are going to recieve JSON
+    res.end(JSON.stringify(notes)); // Return the notes to the requester
+  }
+};
+
+module.exports = { addNote, readNote, readNotes }; // Export all api logic
