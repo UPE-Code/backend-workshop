@@ -76,4 +76,44 @@ const readNotes = (req, res) => {
   }
 };
 
-module.exports = { addNote, readNote, readNotes }; // Export all api logic
+/*
+  First have to find the note to update
+  Then have to update note
+  Finaly save note and return edited note
+*/
+
+const updateNotes = (req, res) => {
+  let notes = loadNotes(file);
+
+  const { pathname, query } = url.parse(req.url);
+  let { id } = qs.parse(query);
+  id = Number(id);
+  note = notes.find((note) => id === note.id);
+
+  if (note !== undefined) {
+    notes = notes.filter((note) => id !== note.id);
+    let data = [];
+    req.on("data", (chunk) => {
+      data.push(chunk);
+    });
+
+    req.on("end", () => {
+      let body = JSON.parse(data);
+      note = { ...note, ...body };
+      notes.push(note);
+      saveNotes(notes, file);
+
+      res.statusCode = 200; // Everything is good, so set response status to ok
+      res.setHeader("Content-Type", "application/json"); // Tell the requester, you are going to recieve JSON
+      res.end(JSON.stringify(note)); // Send the note back to the requester
+    });
+  } else {
+    const message = { error: "No such note found" };
+
+    res.statusCode = 400; // There is no such note set response status to Bad Request
+    res.setHeader("Content-Type", "application/json"); // Tell the requester, that they are going to recieve JSON
+    res.end(JSON.stringify(message));
+  }
+};
+
+module.exports = { addNote, readNote, readNotes, updateNotes }; // Export all api logic

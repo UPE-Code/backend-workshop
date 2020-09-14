@@ -15,5 +15,7 @@ module.exports = http.createServer((req, res) => {
     apiRouter.readNote(req, res);
   } else if (pathname === "/api" && req.method === "GET") {
     apiRouter.readNotes(req, res);
+  } else if (pathname === "/api" && query && req.method === "PUT") {
+    apiRouter.updateNotes(req, res);
   }
 });
