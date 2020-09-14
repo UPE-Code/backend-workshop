@@ -101,6 +101,7 @@ const updateNotes = (req, res) => {
       let body = JSON.parse(data);
       note = { ...note, ...body };
       notes.push(note);
+      notes = notes.sort((a, b) => (a.id < b.id ? -1 : 0));
       saveNotes(notes, file);
 
       res.statusCode = 200; // Everything is good, so set response status to ok
