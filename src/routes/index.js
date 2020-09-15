@@ -5,6 +5,7 @@ const {
   readNote,
   readNotes,
   updateNote,
+  deleteNote,
 } = require("../controllers/index");
 
 const apiRouter = express.Router();
@@ -23,6 +24,10 @@ apiRouter.get("/", (req, res) => {
 
 apiRouter.put("/:id", (req, res) => {
   updateNote(req, res);
+});
+
+apiRouter.delete("/:id", (req, res) => {
+  deleteNote(req, res);
 });
 
 module.exports = apiRouter;

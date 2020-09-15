@@ -32,7 +32,7 @@ const readNote = (req, res) => {
 
   if (note !== undefined) {
     res.status(200);
-    res.json(JSON.stringify(note));
+    res.json(note);
   } else {
     const message = { error: "No such note found" };
     res.status(400);
@@ -77,4 +77,25 @@ const updateNote = (req, res) => {
   }
 };
 
-module.exports = { createNote, readNote, readNotes, updateNote };
+const deleteNote = (req, res) => {
+  let notes = loadNotes(dbFile);
+
+  let { id } = req.params;
+  id = Number(id);
+
+  const foundNote = notes.find((note) => note.id === id);
+  const filteredNotes = notes.filter((note) => note.id !== id);
+
+  if (notes.length > filteredNotes.length) {
+    res.status(200);
+    res.json(foundNote);
+    saveNotes(filteredNotes, dbFile);
+  } else {
+    const message = { error: "No note removed" };
+
+    res.json(message);
+    res.status(400);
+  }
+};
+
+module.exports = { createNote, readNote, readNotes, updateNote, deleteNote };
