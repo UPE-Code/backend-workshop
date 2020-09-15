@@ -32,7 +32,7 @@ const readNote = (req, res) => {
 
   if (note !== undefined) {
     res.status(200);
-    res.json(JSON.stringify(note));
+    rres.json(note);
   } else {
     const message = { error: "No such note found" };
     res.status(400);
