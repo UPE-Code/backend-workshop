@@ -53,4 +53,28 @@ const readNotes = (req, res) => {
   }
 };
 
-module.exports = { createNote, readNote, readNotes };
+const updateNote = (req, res) => {
+  let notes = loadNotes(dbFile);
+
+  let { id } = req.params;
+  id = Number(id);
+
+  let foundNote = notes.find((note) => note.id === id);
+  notes = notes.filter((note) => note.id !== id);
+
+  if (foundNote !== undefined) {
+    const note = { ...foundNote, id };
+    notes.push(note);
+    notes.sort((a, b) => (a > b ? 1 : -1));
+    saveNotes(notes, dbFile);
+
+    res.status(200);
+    res.json(note);
+  } else {
+    const message = { error: "No such note found" };
+    res.status(400);
+    res.json(message);
+  }
+};
+
+module.exports = { createNote, readNote, readNotes, updateNote };

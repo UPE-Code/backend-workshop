@@ -1,6 +1,11 @@
 const express = require("express");
 
-const { createNote, readNote, readNotes } = require("../controllers/index");
+const {
+  createNote,
+  readNote,
+  readNotes,
+  updateNote,
+} = require("../controllers/index");
 
 const apiRouter = express.Router();
 
@@ -14,6 +19,10 @@ apiRouter.get("/:id", (req, res) => {
 
 apiRouter.get("/", (req, res) => {
   readNotes(req, res);
+});
+
+apiRouter.put("/:id", (req, res) => {
+  updateNote(req, res);
 });
 
 module.exports = apiRouter;
